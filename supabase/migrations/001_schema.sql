@@ -28,15 +28,18 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- Auto-create profile on sign-up (all users default to 'student')
 -- Role is upgraded manually by an admin via the Admin Dashboard.
+-- Auto-create profile on sign-up (all users default to 'student')
+-- Role is upgraded manually by an admin via the Admin Dashboard.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, full_name, username, role)
+  INSERT INTO public.profiles (id, email, full_name, username, avatar_url, role)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1) || '_' || substr(NEW.id::text, 1, 4)),
+    NEW.raw_user_meta_data->>'avatar_url',
     'student'   -- always student; promote via Admin Dashboard
   )
   ON CONFLICT (id) DO NOTHING;
