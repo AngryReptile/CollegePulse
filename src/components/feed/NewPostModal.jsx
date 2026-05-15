@@ -33,10 +33,19 @@ export default function NewPostModal({ onClose, onCreated, userId }) {
     let image_url = null
     if (file) {
       try {
-        const path = `${userId}/${Date.now()}_${file.name}`
-        image_url = await uploadImage(BUCKETS.FEED, file, path)
+        const uid = userId || 'anonymous'
+        const path = `${uid}/${Date.now()}_${file.name.replace(/\s/g, '_')}`
+        
+        // Add a timeout fallback in case of hanging network
+        const uploadPromise = uploadImage(BUCKETS.FEED, file, path)
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Upload timed out. Check your connection.')), 30000)
+        )
+
+        image_url = await Promise.race([uploadPromise, timeoutPromise])
       } catch (err) {
-        toast.error(err.message)
+        console.error('[Upload Error]', err)
+        toast.error(`Upload failed: ${err.message || 'Unknown error'}`)
         setLoading(false)
         return
       }
