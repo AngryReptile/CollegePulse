@@ -114,13 +114,13 @@ export default function PostCard({ post, onLikeToggle, onDelete, index = 0 }) {
         </p>
       )}
 
-      {/* Image — Instagram 4:5 ratio */}
+      {/* Image — Instagram 4:5 ratio, crops to fill like Instagram */}
       {post.image_url && (
-        <div className="relative w-full overflow-hidden bg-black" style={{ aspectRatio: '4/5' }}>
+        <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4/5' }}>
           <img
             src={post.image_url}
             alt={post.caption || 'Post image'}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
       )}

@@ -26,20 +26,23 @@ export default function ForumPage() {
 
   const fetchThreads = useCallback(async () => {
     setLoading(true)
-    let q = supabase
-      .from('forum_threads')
-      .select('*, profiles:author_id(id, full_name, username, avatar_url)')
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    if (category !== 'All') q = q.eq('category', category)
-
-    const { data } = await q
-    const all = data || []
-    setThreads(all)
-    // Trending = top 3 by views
-    setTrending([...all].sort((a,b) => (b.views||0) - (a.views||0)).slice(0, 3))
-    setLoading(false)
+    try {
+      let q = supabase
+        .from('forum_threads')
+        .select('*, profiles:author_id(id, full_name, username, avatar_url)')
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (category !== 'All') q = q.eq('category', category)
+      const { data, error } = await q
+      if (error) throw error
+      const all = data || []
+      setThreads(all)
+      setTrending([...all].sort((a,b) => (b.views||0) - (a.views||0)).slice(0, 3))
+    } catch {
+      toast.error('Failed to load threads')
+    } finally {
+      setLoading(false)
+    }
   }, [category])
 
   const filtered = threads.filter(t =>

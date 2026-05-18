@@ -26,17 +26,21 @@ export default function BoardPage() {
 
   async function fetchItems() {
     setLoading(true)
-    let q = supabase
-      .from('board_items')
-      .select('*, profiles:author_id(id, full_name, username, avatar_url)')
-      .order('created_at', { ascending: false })
-      .limit(40)
-
-    if (tab !== 'all') q = q.eq('category', tab)
-
-    const { data } = await q
-    setItems(data || [])
-    setLoading(false)
+    try {
+      let q = supabase
+        .from('board_items')
+        .select('*, profiles:author_id(id, full_name, username, avatar_url)')
+        .order('created_at', { ascending: false })
+        .limit(40)
+      if (tab !== 'all') q = q.eq('category', tab)
+      const { data, error } = await q
+      if (error) throw error
+      setItems(data || [])
+    } catch {
+      toast.error('Failed to load board')
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleResolved(id) {

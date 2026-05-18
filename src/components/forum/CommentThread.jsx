@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
-import { useRealtime } from '../../hooks/useRealtime'
 import { generateInitials, getAvatarGradient, timeAgo } from '../../lib/utils'
 import toast from 'react-hot-toast'
 import { Send, Reply, ChevronDown, Trash2 } from 'lucide-react'
@@ -18,33 +17,21 @@ export default function CommentThread({ threadId }) {
 
   useEffect(() => { fetchComments() }, [threadId]) // eslint-disable-line
 
-  // Real-time new comments
-  useRealtime(
-    `thread-comments-${threadId}`,
-    { event: 'INSERT', table: 'forum_comments', filter: `thread_id=eq.${threadId}`,
-      callback: async (payload) => {
-        // Fetch full comment with profile
-        const { data } = await supabase
-          .from('forum_comments')
-          .select('*, profiles:author_id(id, full_name, username, avatar_url)')
-          .eq('id', payload.new.id)
-          .single()
-        if (data) setComments(prev => [...prev, data])
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }
-    },
-    [threadId]
-  )
-
   async function fetchComments() {
     setFetching(true)
-    const { data } = await supabase
-      .from('forum_comments')
-      .select('*, profiles:author_id(id, full_name, username, avatar_url)')
-      .eq('thread_id', threadId)
-      .order('created_at', { ascending: true })
-    setComments(data || [])
-    setFetching(false)
+    try {
+      const { data, error } = await supabase
+        .from('forum_comments')
+        .select('*, profiles:author_id(id, full_name, username, avatar_url)')
+        .eq('thread_id', threadId)
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      setComments(data || [])
+    } catch {
+      // silently fail — comments just won't load
+    } finally {
+      setFetching(false)
+    }
   }
 
   async function submitComment(e) {
@@ -61,6 +48,8 @@ export default function CommentThread({ threadId }) {
     if (error) { toast.error('Failed to post comment'); return }
     setBody('')
     setReplyTo(null)
+    // Refetch instead of relying on realtime to avoid channel accumulation
+    fetchComments()
   }
 
   // Build tree: root comments + their replies

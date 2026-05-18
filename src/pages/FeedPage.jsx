@@ -20,35 +20,36 @@ export default function FeedPage() {
 
   const loadPosts = useCallback(async (pg = 0, reset = false) => {
     setLoading(true)
-    const from = pg * PAGE_SIZE
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*, profiles:author_id(id, full_name, username, avatar_url)')
-      .order('created_at', { ascending: false })
-      .range(from, from + PAGE_SIZE - 1)
+    try {
+      const from = pg * PAGE_SIZE
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*, profiles:author_id(id, full_name, username, avatar_url)')
+        .order('created_at', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1)
 
-    if (error) { toast.error('Failed to load feed'); setLoading(false); return }
+      if (error) { toast.error('Failed to load feed'); return }
 
-    // Enrich with like status
-    let enriched = data || []
-    if (user) {
-      const ids = enriched.map(p => p.id)
-      if (ids.length) {
-        const { data: likes } = await supabase
-          .from('post_likes')
-          .select('post_id')
-          .eq('user_id', user.id)
-          .in('post_id', ids)
-        const likedSet = new Set((likes || []).map(l => l.post_id))
-        enriched = enriched.map(p => ({ ...p, liked_by_me: likedSet.has(p.id) }))
+      let enriched = data || []
+      if (user) {
+        const ids = enriched.map(p => p.id)
+        if (ids.length) {
+          const { data: likes } = await supabase
+            .from('post_likes').select('post_id')
+            .eq('user_id', user.id).in('post_id', ids)
+          const likedSet = new Set((likes || []).map(l => l.post_id))
+          enriched = enriched.map(p => ({ ...p, liked_by_me: likedSet.has(p.id) }))
+        }
       }
+
+      if (reset) setPosts(enriched)
+      else setPosts(prev => [...prev, ...enriched])
+      setHasMore(enriched.length === PAGE_SIZE)
+    } catch (e) {
+      toast.error('Connection issue. Please refresh.')
+    } finally {
+      setLoading(false)
     }
-
-    if (reset) setPosts(enriched)
-    else setPosts(prev => [...prev, ...enriched])
-
-    setHasMore(enriched.length === PAGE_SIZE)
-    setLoading(false)
   }, [user])
 
   async function toggleLike(post) {
