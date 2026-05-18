@@ -74,7 +74,7 @@ export default function FeedPage() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="font-display font-bold text-2xl">Campus Feed</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>Photos and updates from NHCM</p>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>Photos and updates from campus</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => loadPosts(0, true)} className="btn-secondary py-2 px-3">

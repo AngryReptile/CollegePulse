@@ -139,7 +139,7 @@ export default function AdminPage() {
           <div>
             <h1 className="font-display font-bold text-2xl">Admin Dashboard</h1>
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              Manage users and roles · NHCM Network
+              Manage users and roles · CollegePulse
             </p>
           </div>
         </div>

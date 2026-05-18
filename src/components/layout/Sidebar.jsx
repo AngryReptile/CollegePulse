@@ -40,7 +40,7 @@ export default function Sidebar() {
         </div>
         <div className="min-w-0">
           <p className="font-display font-bold text-sm leading-none text-gradient-brand">CollegePulse</p>
-          <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>NHCM Network</p>
+          <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>Campus Community</p>
         </div>
       </div>
 

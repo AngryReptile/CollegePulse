@@ -101,7 +101,7 @@ export default function AuthPage() {
           </div>
           <div className="text-center">
             <h1 className="font-display font-bold text-2xl leading-none text-gradient-brand">CollegePulse</h1>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>NHCM Community Network</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Your Campus Community</p>
           </div>
         </div>
 

@@ -87,8 +87,8 @@ export default function HomePage() {
             </h1>
             <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
               {profile
-                ? `${profile.department || 'NHCM'} · Year ${profile.year || '?'} · ${profile.role === 'admin' ? '🎓 Faculty/Admin' : '🎒 Student'}`
-                : 'The NHCM Community Network — connect, collaborate, and thrive.'}
+                ? `${profile.department || 'CollegePulse'} · Year ${profile.year || '?'} · ${profile.role === 'admin' ? '🎓 Faculty/Admin' : '🎒 Student'}`
+                : 'Your campus community — connect, collaborate, and thrive.'}
             </p>
             {!user && (
               <div className="flex gap-3">

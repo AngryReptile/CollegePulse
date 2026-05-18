@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { MessageSquare, Eye, Pin, TrendingUp, Clock } from 'lucide-react'
 import { timeAgo, generateInitials, getAvatarGradient, truncate } from '../../lib/utils'
 
-export default function ThreadCard({ thread, index = 0, isTrending = false }) {
-  const navigate = useNavigate()
+export default function ThreadCard({ thread, index = 0, isTrending = false, onClick }) {
   const initials = generateInitials(thread.profiles?.full_name || '')
   const gradient = getAvatarGradient(thread.author_id)
 
@@ -13,9 +11,8 @@ export default function ThreadCard({ thread, index = 0, isTrending = false }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-      onClick={() => navigate(`/forum/${thread.id}`)}
+      onClick={onClick}
       className="glass-card p-5 cursor-pointer"
-      style={{ '--hover-border': 'rgba(37,99,235,0.3)' }}
       whileHover={{ scale: 1.01 }}
       id={`thread-${thread.id}`}
     >

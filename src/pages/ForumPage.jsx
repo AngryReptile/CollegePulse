@@ -59,7 +59,7 @@ export default function ForumPage() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="font-display font-bold text-2xl">Discussion Forum</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>Connect, ask, and share with the NHCM community</p>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>Connect, ask, and share with the community</p>
         </div>
         {user && (
           <motion.button id="btn-new-thread" onClick={() => setShowNew(true)} whileTap={{ scale: 0.96 }} className="btn-primary">
@@ -155,7 +155,7 @@ export default function ForumPage() {
             <div className="space-y-3">
               {filtered.map((thread, i) => (
                 <div key={thread.id} onClick={() => openThread(thread)}>
-                  <ThreadCard thread={thread} index={i} isTrending={trending.some(t => t.id === thread.id)} />
+                  <ThreadCard thread={thread} index={i} isTrending={trending.some(t => t.id === thread.id)} onClick={() => openThread(thread)} />
                 </div>
               ))}
               {filtered.length === 0 && (
