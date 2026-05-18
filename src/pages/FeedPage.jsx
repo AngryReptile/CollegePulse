@@ -97,7 +97,7 @@ export default function FeedPage() {
         <div className="space-y-4">
           <AnimatePresence>
             {posts.map((post, i) => (
-              <PostCard key={post.id} post={post} index={i} onLikeToggle={toggleLike} />
+              <PostCard key={post.id} post={post} index={i} onLikeToggle={toggleLike} onDelete={(id) => setPosts(prev => prev.filter(p => p.id !== id))} />
             ))}
           </AnimatePresence>
 

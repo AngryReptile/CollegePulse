@@ -40,7 +40,8 @@ export default function BoardPage() {
   }
 
   function handleResolved(id) {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, is_resolved: true } : i))
+    // Remove item entirely (handles both resolve and delete)
+    setItems(prev => prev.filter(i => i.id !== id))
   }
 
   const filtered = items.filter(item => {

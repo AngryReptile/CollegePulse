@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useRealtime } from '../../hooks/useRealtime'
 import { generateInitials, getAvatarGradient, timeAgo } from '../../lib/utils'
 import toast from 'react-hot-toast'
-import { Send, Reply, ChevronDown } from 'lucide-react'
+import { Send, Reply, ChevronDown, Trash2 } from 'lucide-react'
 
 export default function CommentThread({ threadId }) {
   const { user, profile } = useAuthStore()
@@ -88,6 +88,8 @@ export default function CommentThread({ threadId }) {
                 comment={comment}
                 replies={getReplies(comment.id)}
                 onReply={(c) => setReplyTo({ id: c.id, username: c.profiles?.username })}
+                onDelete={(id) => setComments(prev => prev.filter(c => c.id !== id))}
+                currentUserId={user?.id}
               />
             ))}
           </AnimatePresence>
@@ -134,10 +136,19 @@ export default function CommentThread({ threadId }) {
   )
 }
 
-function CommentItem({ comment, replies = [], onReply }) {
+function CommentItem({ comment, replies = [], onReply, onDelete, currentUserId }) {
   const [expanded, setExpanded] = useState(true)
   const initials = generateInitials(comment.profiles?.full_name || '')
   const gradient = getAvatarGradient(comment.profiles?.id || '')
+  const canDelete = currentUserId && currentUserId === comment.author_id
+
+  async function handleDelete() {
+    if (!window.confirm('Delete this comment?')) return
+    const { error } = await supabase.from('forum_comments').delete().eq('id', comment.id)
+    if (error) { toast.error('Failed to delete'); return }
+    onDelete?.(comment.id)
+    toast.success('Comment deleted')
+  }
 
   return (
     <motion.div
@@ -145,7 +156,7 @@ function CommentItem({ comment, replies = [], onReply }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.3 }}
-      className="glass-card p-4"
+      className="glass-card p-4 group"
       id={`comment-${comment.id}`}
     >
       <div className="flex gap-3">
@@ -161,9 +172,16 @@ function CommentItem({ comment, replies = [], onReply }) {
             <span className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>{timeAgo(comment.created_at)}</span>
           </div>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{comment.body}</p>
-          <button onClick={() => onReply(comment)} className="btn-ghost text-xs mt-1 py-1 px-2">
-            <Reply className="w-3 h-3" /> Reply
-          </button>
+          <div className="flex items-center gap-2 mt-1">
+            <button onClick={() => onReply(comment)} className="btn-ghost text-xs py-1 px-2">
+              <Reply className="w-3 h-3" /> Reply
+            </button>
+            {canDelete && (
+              <button onClick={handleDelete} className="btn-ghost text-xs py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#f43f5e' }}>
+                <Trash2 className="w-3 h-3" /> Delete
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -183,7 +201,7 @@ function CommentItem({ comment, replies = [], onReply }) {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <CommentItem comment={r} replies={[]} onReply={onReply} />
+                <CommentItem comment={r} replies={[]} onReply={onReply} onDelete={onDelete} currentUserId={currentUserId} />
               </motion.div>
             ))}
           </AnimatePresence>

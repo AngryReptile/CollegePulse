@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore'
 import { generateInitials, getAvatarGradient, timeAgo } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
-import { MessageSquare, Check, Users, Search, AlertTriangle, Tag } from 'lucide-react'
+import { MessageSquare, Check, Users, Search, AlertTriangle, Tag, Trash2 } from 'lucide-react'
 
 const CATEGORY_CONFIG = {
   teammate: { label: 'Teammate Wanted', icon: Users,         color: 'badge-brand',  bg: 'rgba(37,99,235,0.08)',  border: 'rgba(37,99,235,0.2)' },
@@ -26,6 +26,14 @@ export default function BoardCard({ item, index = 0, onResolved }) {
     if (error) { toast.error('Failed to update'); return }
     toast.success('Marked as resolved! ✓')
     onResolved?.(item.id)
+  }
+
+  async function deleteItem() {
+    if (!window.confirm('Delete this post?')) return
+    const { error } = await supabase.from('board_items').delete().eq('id', item.id)
+    if (error) { toast.error(error.message); return }
+    toast.success('Post deleted')
+    onResolved?.(item.id) // reuse to remove from list
   }
 
   return (
@@ -90,7 +98,7 @@ export default function BoardCard({ item, index = 0, onResolved }) {
           </div>
 
           <div className="flex gap-2 flex-shrink-0">
-            {/* Contact button — visible to all non-owners */}
+            {/* Contact — visible to all non-owners */}
             {!isOwner && (
               <button
                 id={`btn-dm-board-${item.id}`}
@@ -111,6 +119,17 @@ export default function BoardCard({ item, index = 0, onResolved }) {
                 style={{ color: '#16a34a', borderColor: 'rgba(22,163,74,0.3)' }}
               >
                 <Check className="w-3 h-3" /> Resolve
+              </button>
+            )}
+            {isOwner && (
+              <button
+                id={`btn-delete-board-${item.id}`}
+                onClick={deleteItem}
+                className="btn-secondary text-xs py-1.5 px-2"
+                style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }}
+                title="Delete post"
+              >
+                <Trash2 className="w-3 h-3" />
               </button>
             )}
           </div>

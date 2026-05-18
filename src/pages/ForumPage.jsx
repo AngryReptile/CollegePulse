@@ -7,7 +7,7 @@ import CommentThread from '../components/forum/CommentThread'
 import toast from 'react-hot-toast'
 import {
   Search, Plus, X, TrendingUp, Flame, Hash,
-  Pin, Tag, ChevronLeft, Send, Filter
+  Pin, Tag, ChevronLeft, Send, Filter, Trash2
 } from 'lucide-react'
 
 const CATEGORIES = ['General', 'Academics', 'Events', 'Placements', 'Projects', 'Sports', 'Tech', 'Announcements']
@@ -91,15 +91,29 @@ export default function ForumPage() {
                 </div>
               )}
               <p className="text-sm leading-loose" style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>{selected.body}</p>
-              {isAdmin && (
+              {(isAdmin || user?.id === selected.author_id) && (
                 <div className="flex gap-2 mt-4 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                  <button className="btn-ghost text-xs" onClick={async () => {
-                    await supabase.from('forum_threads').update({ is_pinned: !selected.is_pinned }).eq('id', selected.id)
-                    toast.success(selected.is_pinned ? 'Unpinned' : 'Pinned!')
-                    setSelected(s => ({ ...s, is_pinned: !s.is_pinned }))
-                  }}>
-                    <Pin className="w-3.5 h-3.5" /> {selected.is_pinned ? 'Unpin' : 'Pin Thread'}
-                  </button>
+                  {isAdmin && (
+                    <button className="btn-ghost text-xs" onClick={async () => {
+                      await supabase.from('forum_threads').update({ is_pinned: !selected.is_pinned }).eq('id', selected.id)
+                      toast.success(selected.is_pinned ? 'Unpinned' : 'Pinned!')
+                      setSelected(s => ({ ...s, is_pinned: !s.is_pinned }))
+                    }}>
+                      <Pin className="w-3.5 h-3.5" /> {selected.is_pinned ? 'Unpin' : 'Pin Thread'}
+                    </button>
+                  )}
+                  {user?.id === selected.author_id && (
+                    <button className="btn-ghost text-xs" style={{ color: '#f43f5e' }} onClick={async () => {
+                      if (!window.confirm('Delete this thread? This cannot be undone.')) return
+                      const { error } = await supabase.from('forum_threads').delete().eq('id', selected.id)
+                      if (error) { toast.error(error.message); return }
+                      toast.success('Thread deleted')
+                      setSelected(null)
+                      fetchThreads()
+                    }}>
+                      <Trash2 className="w-3.5 h-3.5" /> Delete Thread
+                    </button>
+                  )}
                 </div>
               )}
             </div>
