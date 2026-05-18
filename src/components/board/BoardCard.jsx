@@ -90,20 +90,25 @@ export default function BoardCard({ item, index = 0, onResolved }) {
           </div>
 
           <div className="flex gap-2 flex-shrink-0">
+            {/* Contact button — visible to all non-owners */}
             {!isOwner && (
               <button
                 id={`btn-dm-board-${item.id}`}
-                onClick={() => navigate('/messages?with=' + item.author_id)}
-                className="btn-secondary text-xs py-1.5 px-3"
+                onClick={() => {
+                  if (!user) { navigate('/auth'); return }
+                  navigate('/messages?with=' + item.author_id)
+                }}
+                className="btn-primary text-xs py-1.5 px-3"
               >
-                <MessageSquare className="w-3 h-3" /> DM
+                <MessageSquare className="w-3 h-3" /> Contact
               </button>
             )}
             {isOwner && !item.is_resolved && (
               <button
                 id={`btn-resolve-${item.id}`}
                 onClick={markResolved}
-                className="btn-secondary text-xs py-1.5 px-3 text-green-400 border-green-500/30"
+                className="btn-secondary text-xs py-1.5 px-3"
+                style={{ color: '#16a34a', borderColor: 'rgba(22,163,74,0.3)' }}
               >
                 <Check className="w-3 h-3" /> Resolve
               </button>

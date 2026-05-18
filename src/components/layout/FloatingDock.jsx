@@ -1,6 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { NavLink } from 'react-router-dom'
 import {
   Home, MessageSquare, Image, Users, CalendarDays,
   LayoutGrid, Zap
@@ -15,72 +13,41 @@ const NAV_ITEMS = [
   { to: '/events',   icon: CalendarDays,  label: 'Events',   id: 'dock-events' },
 ]
 
-function DockIcon({ item, mouseX }) {
-  const ref = useRef(null)
-
-  const distance = useMotionValue(0)
-  const scale = useSpring(
-    useTransform(distance, [-120, 0, 120], [0.9, 1.3, 0.9]),
-    { stiffness: 260, damping: 20 }
-  )
-  const translateY = useSpring(
-    useTransform(distance, [-120, 0, 120], [0, -14, 0]),
-    { stiffness: 260, damping: 20 }
-  )
-
-  function handleMouseMove(e) {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const d = e.clientX - (rect.left + rect.width / 2)
-    distance.set(d)
-  }
-
-  const Icon = item.icon
-
-  return (
-    <NavLink
-      to={item.to}
-      id={item.id}
-      className={({ isActive }) => `dock-item ${isActive ? 'active' : ''}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => distance.set(9999)}
-      ref={ref}
-      style={{ textDecoration: 'none' }}
-    >
-      <motion.div className="dock-icon-wrap" style={{ scale, translateY }}>
-        <Icon className="w-5 h-5" />
-      </motion.div>
-      <span className="dock-label">{item.label}</span>
-    </NavLink>
-  )
-}
-
 export default function FloatingDock() {
-  const mouseX = useMotionValue(Infinity)
-
   return (
-    <motion.nav
-      className="floating-dock"
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.3, type: 'spring', stiffness: 260, damping: 24 }}
-      onMouseMove={e => mouseX.set(e.clientX)}
-      onMouseLeave={() => mouseX.set(Infinity)}
+    <nav
+      className="floating-dock md:hidden"
       aria-label="Main navigation dock"
     >
       {/* Brand icon */}
       <div className="flex flex-col items-center gap-1 px-1">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #d97706, #c2410c)' }}>
           <Zap className="w-5 h-5 text-white" />
         </div>
-        <span className="dock-label" style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>CP</span>
+        <span className="dock-label" style={{ fontWeight: 700 }}>CP</span>
       </div>
 
       <div className="dock-separator" />
 
-      {NAV_ITEMS.map(item => (
-        <DockIcon key={item.to} item={item} mouseX={mouseX} />
-      ))}
-    </motion.nav>
+      {NAV_ITEMS.map(item => {
+        const Icon = item.icon
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            id={item.id}
+            end={item.to === '/'}
+            className={({ isActive }) => `dock-item${isActive ? ' active' : ''}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <div className="dock-icon-wrap">
+              <Icon className="w-5 h-5" />
+            </div>
+            <span className="dock-label">{item.label}</span>
+          </NavLink>
+        )
+      })}
+    </nav>
   )
 }
