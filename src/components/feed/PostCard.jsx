@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
 import { generateInitials, getAvatarGradient, timeAgo } from '../../lib/utils'
 import toast from 'react-hot-toast'
-import { Heart, MessageSquare, Share2, MessageCircle, ChevronDown, Send, Trash2 } from 'lucide-react'
+import { Heart, MessageSquare, Share2, MessageCircle, ChevronDown, Send, Trash2, ZoomIn } from 'lucide-react'
+import ImageLightbox from './ImageLightbox'
 
 export default function PostCard({ post, onLikeToggle, onDelete, index = 0 }) {
   const { user, profile } = useAuthStore()
@@ -15,6 +16,7 @@ export default function PostCard({ post, onLikeToggle, onDelete, index = 0 }) {
   const [commentBody, setCommentBody]   = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [submitting, setSubmitting]     = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const initials = generateInitials(post.profiles?.full_name || '')
   const gradient = getAvatarGradient(post.author_id)
@@ -114,18 +116,35 @@ export default function PostCard({ post, onLikeToggle, onDelete, index = 0 }) {
         </p>
       )}
 
-      {/* Image — Instagram-style: 4:5 ratio, max 500px tall, crops to fill */}
+      {/* Image — click to open lightbox */}
       {post.image_url && (
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: '4/5', maxHeight: '500px' }}
-        >
-          <img
-            src={post.image_url}
-            alt={post.caption || 'Post image'}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </div>
+        <>
+          <div
+            className="relative w-full overflow-hidden cursor-zoom-in group"
+            style={{ aspectRatio: '4/5', maxHeight: '500px' }}
+            onClick={() => setLightboxOpen(true)}
+          >
+            <img
+              src={post.image_url}
+              alt={post.caption || 'Post image'}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            />
+            {/* Zoom hint on hover */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              style={{ background: 'rgba(0,0,0,0.15)' }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                <ZoomIn className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
+          {lightboxOpen && (
+            <ImageLightbox
+              src={post.image_url}
+              alt={post.caption || 'Post image'}
+              onClose={() => setLightboxOpen(false)}
+            />
+          )}
+        </>
       )}
 
       {/* Actions */}
