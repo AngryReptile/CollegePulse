@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
-  Home, MessageSquare, Image, Users, CalendarDays,
-  LayoutGrid, Zap
+  Home, MessageSquare, Image, Users, CalendarDays, LayoutGrid
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -15,21 +14,7 @@ const NAV_ITEMS = [
 
 export default function FloatingDock() {
   return (
-    <nav
-      className="floating-dock md:hidden"
-      aria-label="Main navigation dock"
-    >
-      {/* Brand icon */}
-      <div className="flex flex-col items-center gap-1 px-1">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #d97706, #c2410c)' }}>
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <span className="dock-label" style={{ fontWeight: 700 }}>CP</span>
-      </div>
-
-      <div className="dock-separator" />
-
+    <nav className="floating-dock md:hidden" aria-label="Main navigation dock">
       {NAV_ITEMS.map(item => {
         const Icon = item.icon
         return (
