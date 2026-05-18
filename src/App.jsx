@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
+import { useState, useEffect } from 'react'
 import AppShell from './components/layout/AppShell'
 import HomePage      from './pages/HomePage'
 import AuthPage      from './pages/AuthPage'
@@ -14,7 +15,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) return <LoadingScreen />
+  const [timedOut, setTimedOut] = useState(false)
+
+  // Safety net: if loading takes more than 4s, stop waiting
+  useEffect(() => {
+    if (!loading) return
+    const t = setTimeout(() => setTimedOut(true), 4000)
+    return () => clearTimeout(t)
+  }, [loading])
+
+  if (loading && !timedOut) return <LoadingScreen />
   if (!user) return <Navigate to="/auth" replace />
   return children
 }
