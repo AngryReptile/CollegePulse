@@ -19,10 +19,12 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+// Public route: show content immediately, redirect if already logged in
 function PublicRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) return <LoadingScreen />
-  if (user) return <Navigate to="/" replace />
+  // Don't block the auth page behind a spinner — show it immediately.
+  // If auth resolves and user IS logged in, we redirect.
+  if (!loading && user) return <Navigate to="/" replace />
   return children
 }
 
