@@ -98,7 +98,7 @@ export default function BoardCard({ item, index = 0, onResolved }) {
           </div>
 
           <div className="flex gap-2 flex-shrink-0">
-            {/* Contact — visible to all non-owners */}
+            {/* Message — visible to all non-owners */}
             {!isOwner && (
               <button
                 id={`btn-dm-board-${item.id}`}
@@ -108,7 +108,7 @@ export default function BoardCard({ item, index = 0, onResolved }) {
                 }}
                 className="btn-primary text-xs py-1.5 px-3"
               >
-                <MessageSquare className="w-3 h-3" /> Contact
+                <MessageSquare className="w-3 h-3" /> Message
               </button>
             )}
             {isOwner && !item.is_resolved && (
