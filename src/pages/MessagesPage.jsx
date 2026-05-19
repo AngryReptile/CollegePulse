@@ -34,27 +34,33 @@ export default function MessagesPage() {
 
   async function fetchConversations() {
     setLoading(true)
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('*')
-      .contains('participant_ids', [user.id])
-      .order('created_at', { ascending: false })
+    try {
+      const { data: convs, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .contains('participant_ids', [user.id])
+        .order('created_at', { ascending: false })
 
-    if (!convs) { setLoading(false); return }
+      if (error) throw error
+      if (!convs) return
 
-    // Enrich with other user + last message
-    const enriched = await Promise.all(convs.map(async conv => {
-      const otherId = conv.participant_ids.find(id => id !== user.id)
-      const [{ data: other }, { data: msgs }, { count }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, username, avatar_url').eq('id', otherId).single(),
-        supabase.from('messages').select('body, created_at').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
-        supabase.from('messages').select('*', { count: 'exact', head: true }).eq('conversation_id', conv.id).eq('read', false).neq('sender_id', user.id),
-      ])
-      return { ...conv, other_user: other, last_message: msgs?.[0] || null, unread_count: count || 0 }
-    }))
+      // Enrich with other user + last message
+      const enriched = await Promise.all(convs.map(async conv => {
+        const otherId = conv.participant_ids.find(id => id !== user.id)
+        const [{ data: other }, { data: msgs }, { count }] = await Promise.all([
+          supabase.from('profiles').select('id, full_name, username, avatar_url').eq('id', otherId).single(),
+          supabase.from('messages').select('body, created_at').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
+          supabase.from('messages').select('*', { count: 'exact', head: true }).eq('conversation_id', conv.id).eq('read', false).neq('sender_id', user.id),
+        ])
+        return { ...conv, other_user: other, last_message: msgs?.[0] || null, unread_count: count || 0 }
+      }))
 
-    setConversations(enriched)
-    setLoading(false)
+      setConversations(enriched)
+    } catch {
+      toast.error('Failed to load messages')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function openOrCreateConversation(targetUserId) {

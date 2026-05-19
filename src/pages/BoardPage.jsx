@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore'
 import BoardCard from '../components/board/BoardCard'
 import NewBoardItemModal from '../components/board/NewBoardItemModal'
 import { Plus, Users, Search, AlertTriangle, SlidersHorizontal } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const TABS = [
   { value: 'all',      label: 'All',            icon: SlidersHorizontal },
