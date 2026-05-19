@@ -27,41 +27,35 @@ export default function AuthPage() {
   const handleTestLogin = async () => {
     setLoading(true)
 
-    // Try signing in first
-    let { data, error } = await supabase.auth.signInWithPassword({
-      email: TEST_EMAIL, password: TEST_PASSWORD,
+    // Try signing in first with a fresh demo user to avoid confirmation issues
+    const randomSuffix = Math.floor(Math.random() * 100000)
+    const freshEmail = `demo${randomSuffix}@collegepulse.app`
+
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: freshEmail,
+      password: TEST_PASSWORD,
+      options: { data: { full_name: 'Demo User', username: `demouser${randomSuffix}` } },
     })
 
-    // If account doesn't exist yet, create it automatically
-    if (error && error.message.toLowerCase().includes('invalid')) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-        options: { data: { full_name: 'Demo User', username: 'demouser' } },
-      })
-      if (signUpError) { setLoading(false); toast.error(signUpError.message); return }
-      data = signUpData
-
-      // Create profile row for the demo user
-      if (data.user) {
-        await supabase.from('profiles').upsert({
-          id:         data.user.id,
-          email:      TEST_EMAIL,
-          full_name:  'Demo User',
-          username:   'demouser',
-          department: 'Computer Science',
-          year:       2,
-          role:       'student',
-          skills:     ['React', 'Supabase', 'Tailwind'],
-        })
-      }
-    }
-
-    if (error && !error.message.toLowerCase().includes('invalid')) {
+    if (signUpError) {
       setLoading(false)
-      toast.error(error.message)
+      toast.error(signUpError.message)
       return
     }
+
+    if (signUpData?.user) {
+      await supabase.from('profiles').upsert({
+        id:         signUpData.user.id,
+        email:      freshEmail,
+        full_name:  'Demo User',
+        username:   `demouser${randomSuffix}`,
+        department: 'Computer Science',
+        year:       2,
+        role:       'student',
+        skills:     ['React', 'Supabase', 'Tailwind'],
+      })
+    }
+
 
     toast.success('Welcome, Demo User! 🎓')
     setLoading(false)
