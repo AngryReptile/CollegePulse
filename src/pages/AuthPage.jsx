@@ -80,8 +80,6 @@ export default function AuthPage() {
             </svg>
             Continue with Google
           </motion.button>
-
-          </motion.button>
         </div>
 
         <p className="text-center text-[11px] mt-8" style={{ color: 'var(--text-muted)' }}>
