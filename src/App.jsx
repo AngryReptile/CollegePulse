@@ -9,7 +9,6 @@ import FeedPage      from './pages/FeedPage'
 import MessagesPage  from './pages/MessagesPage'
 import ProfilePage   from './pages/ProfilePage'
 import BoardPage     from './pages/BoardPage'
-import EventsPage    from './pages/EventsPage'
 import AdminPage     from './pages/AdminPage'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -71,7 +70,6 @@ export default function App() {
         <Route path="/profile" element={<AppShell><ProfilePage /></AppShell>} />
         <Route path="/profile/:username" element={<AppShell><ProfilePage /></AppShell>} />
         <Route path="/board" element={<AppShell><BoardPage /></AppShell>} />
-        <Route path="/events" element={<AppShell><EventsPage /></AppShell>} />
         <Route path="/admin" element={<AppShell><AdminPage /></AppShell>} />
 
         {/* Catch-all */}

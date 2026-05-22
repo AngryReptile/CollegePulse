@@ -14,7 +14,6 @@ const NAV = [
   { to: '/feed',     icon: Image,         label: 'Social Feed' },
   { to: '/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/board',    icon: Users,         label: 'Board & Lost+Found' },
-  { to: '/events',   icon: CalendarDays,  label: 'Events & Tickets' },
 ]
 
 export default function Sidebar() {

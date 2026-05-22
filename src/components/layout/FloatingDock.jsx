@@ -9,7 +9,6 @@ const NAV_ITEMS = [
   { to: '/feed',     icon: Image,         label: 'Feed',     id: 'dock-feed' },
   { to: '/messages', icon: MessageSquare, label: 'Messages', id: 'dock-messages' },
   { to: '/board',    icon: Users,         label: 'Board',    id: 'dock-board' },
-  { to: '/events',   icon: CalendarDays,  label: 'Events',   id: 'dock-events' },
 ]
 
 export default function FloatingDock() {
