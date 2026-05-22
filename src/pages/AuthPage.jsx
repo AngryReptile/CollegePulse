@@ -3,11 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
-import { Zap, FlaskConical } from 'lucide-react'
-
-// Test account credentials — pre-seeded in Supabase
-const TEST_EMAIL    = 'demo@collegepulse.app'
-const TEST_PASSWORD = 'DemoPass123!'
+import { Zap } from 'lucide-react'
 
 export default function AuthPage() {
   const navigate   = useNavigate()
@@ -23,45 +19,7 @@ export default function AuthPage() {
     if (error) { setLoading(false); toast.error(error.message) }
   }
 
-  /* ── One-click Demo Login ── */
-  const handleTestLogin = async () => {
-    setLoading(true)
-
-    // Try signing in first with a fresh demo user to avoid confirmation issues
-    const randomSuffix = Math.floor(Math.random() * 100000)
-    const freshEmail = `demo${randomSuffix}@collegepulse.app`
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: freshEmail,
-      password: TEST_PASSWORD,
-      options: { data: { full_name: 'Demo User', username: `demouser${randomSuffix}` } },
-    })
-
-    if (signUpError) {
-      setLoading(false)
-      toast.error(signUpError.message)
-      return
-    }
-
-    if (signUpData?.user) {
-      await supabase.from('profiles').upsert({
-        id:         signUpData.user.id,
-        email:      freshEmail,
-        full_name:  'Demo User',
-        username:   `demouser${randomSuffix}`,
-        department: 'Computer Science',
-        year:       2,
-        role:       'student',
-        skills:     ['React', 'Supabase', 'Tailwind'],
-      })
-    }
-
-
-    toast.success('Welcome, Demo User! 🎓')
-    setLoading(false)
-    navigate('/')
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
@@ -123,28 +81,6 @@ export default function AuthPage() {
             Continue with Google
           </motion.button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 py-1">
-            <hr className="flex-1" style={{ borderColor: 'rgba(0,0,0,0.10)' }} />
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>or</span>
-            <hr className="flex-1" style={{ borderColor: 'rgba(0,0,0,0.10)' }} />
-          </div>
-
-          {/* Test / Demo Login */}
-          <motion.button
-            id="btn-demo-login"
-            onClick={handleTestLogin}
-            disabled={loading}
-            whileTap={{ scale: 0.97 }}
-            className="btn-primary w-full justify-center gap-2"
-          >
-            {loading
-              ? <span className="animate-pulse">Loading…</span>
-              : <>
-                  <FlaskConical className="w-4 h-4" />
-                  Try Demo — No Sign-up Needed
-                </>
-            }
           </motion.button>
         </div>
 
